@@ -1,0 +1,54 @@
+groups:
+  - name: log_monitoring_alerts
+    folder: General
+    interval: 30s
+    rules:
+      - uid: high_incident_rate
+        title: High Incident Rate
+        condition: A
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 60
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              expr: increase(log_incident_total[1m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        for: 0m
+        noDataState: NoData
+        execErrState: Alerting
+        labels:
+          severity: critical
+          service: log-monitoring
+        annotations:
+          summary: "Incident detected in logs"
+          description: "{{ $value }} incidents detected in the last minute"
+
+      - uid: high_warning_rate
+        title: High Warning Rate
+        condition: A
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: P4169E866C3094E38
+            model:
+              expr: increase(log_warning_total[5m]) > 5
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+        for: 2m
+        noDataState: NoData
+        execErrState: Alerting
+        labels:
+          severity: warning
+          service: log-monitoring
+        annotations:
+          summary: "High warning rate detected"
+          description: "{{ $value }} warnings detected in the last 5 minutes - preventive action may be needed"
